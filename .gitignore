@@ -6,5 +6,7 @@
 .vscode/
 .venv/
 
+demo/results
+
 # MacOS-specific
 .DS_Store
