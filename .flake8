@@ -1,0 +1,8 @@
+[flake8]
+# see https://pypi.org/project/black/
+ignore = E203, W503
+exclude = \
+  .venv,
+  */.ipynb_checkpoints
+
+max-line-length=100
