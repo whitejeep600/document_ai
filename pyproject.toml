@@ -1,0 +1,32 @@
+[tool.black]
+line-length = 100
+target-version = ['py39']
+include = '\.py$'
+exclude = '''
+/(
+  | \.git
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.poetry]
+name = "document_ai"
+version = "0.0.0"
+description = ""
+authors = ["Antoni Maciag <antoni.maciag1@gmail.com>"]
+readme = "README.md"
+
+[[tool.poetry.source]]
+name = "PyPI"
+priority = "primary"
+
+[tool.poetry.dependencies]
+python = "~3.9"
+
+black = "*"
+flake8 = "*"
+isort = "*"
+mypy = "*"
