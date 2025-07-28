@@ -5,13 +5,13 @@ from src.types_ import BBox, DetectionOrAnnotation, PubLayNetCategory
 
 
 def _raw_detection_to_annotation(raw_detection: dict) -> DetectionOrAnnotation | None:
-    x_min, y_min, x_max, y_max = raw_detection["bbox"]
-    bbox = BBox.from_xyxy(x_min, y_min, x_max, y_max)
     category = PubLayNetCategory.from_text(raw_detection["type"])
     if category is None:
         # Unrecognized category (PPStructure recognizes some categories that are not in PubLayNet).
         return None
     else:
+        x_min, y_min, x_max, y_max = raw_detection["bbox"]
+        bbox = BBox.from_xyxy(x_min, y_min, x_max, y_max)
         return DetectionOrAnnotation(category, bbox)
 
 

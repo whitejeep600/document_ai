@@ -7,7 +7,6 @@ from src.types_ import DetectionOrAnnotation, PubLayNetCategory
 
 # "Normalized" here means that this is defined wrt. the size of the image, instead of
 # a constant value in pixels.
-
 _NORMALIZED_LINE_THICKNESS = 0.01
 
 _DETECTION_OR_ANNOTATION_PLOTTING_OPACITY = 0.3
@@ -51,7 +50,9 @@ def _overlay_annotation_on_image(
     """
     image = image.copy()
     image_with_opaque_annotation_bbox = image.copy()
+
     color = _CATEGORY_COLOR_MAPPING[annotation.category]
+
     cv2.rectangle(
         image_with_opaque_annotation_bbox,
         annotation.bbox.start_point(),

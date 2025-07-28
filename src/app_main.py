@@ -1,8 +1,9 @@
-import base64
-
 import cv2
 import numpy as np
 from fastapi import FastAPI, File, Form, UploadFile
+
+from src.constants import HTTPMessageField
+from src.serialization import serialize_image_for_http_response
 
 document_ai = FastAPI()
 
@@ -15,10 +16,9 @@ async def _detect(file: UploadFile = File(...)):
     # todo actual processing
     cv2.rectangle(image, (30, 30), (100, 100), (0, 0, 255), 20)
 
-    _, encoded_image = cv2.imencode(".jpg", image)
-    b64_img = base64.b64encode(encoded_image.tobytes()).decode("utf-8")
+    serialized_image = serialize_image_for_http_response(image)
 
-    return {"processed_image": b64_img}
+    return {HTTPMessageField.PROCESSED_IMAGE: serialized_image}
 
 
 @document_ai.post("/evaluate")
@@ -29,7 +29,9 @@ async def _evaluate(file: UploadFile = File(...), annotations: str = Form(...)):
     # todo actual processing
     cv2.rectangle(image, (30, 30), (100, 100), (0, 255, 255), 20)
 
-    _, encoded_image = cv2.imencode(".jpg", image)
-    b64_img = base64.b64encode(encoded_image.tobytes()).decode("utf-8")
+    serialized_image = serialize_image_for_http_response(image)
 
-    return {"metrics": {"accuracy": 1}, "processed_image": b64_img}
+    return {
+        HTTPMessageField.METRICS: {"accuracy": 1},
+        HTTPMessageField.PROCESSED_IMAGE: serialized_image,
+    }

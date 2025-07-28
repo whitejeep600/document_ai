@@ -1,12 +1,11 @@
-import base64
-import io
 import json
 from pathlib import Path
 
 import cv2
-import numpy as np
 import requests
 
+from src.constants import HTTPMessageField
+from src.serialization import deserialize_image_from_http_response, serialize_image_for_http_request
 from src.types_ import BBox, DetectionOrAnnotation, DocumentImageSample, PubLayNetCategory
 
 _DETECT_URL = "http://localhost:8000/detect"
@@ -59,19 +58,17 @@ def _demo_detect_endpoint(samples: list[DocumentImageSample]):
     _DETECT_ENDPOINT_RESULT_PATH.mkdir(exist_ok=True, parents=True)
 
     for sample in samples:
-        _, encoded = cv2.imencode(".jpg", sample.image)
-        image_bytes = io.BytesIO(encoded.tobytes())
-        files = {"file": ("image.jpg", image_bytes, "image/jpeg")}
+        serialized_image_to_send = serialize_image_for_http_request(sample.image)
 
-        response = requests.post(_DETECT_URL, files=files)
+        response = requests.post(_DETECT_URL, files=serialized_image_to_send)
         data = response.json()
-        image_with_detections_bytes = np.frombuffer(
-            base64.b64decode(data["processed_image"]), dtype=np.uint8
+
+        image_with_detections = deserialize_image_from_http_response(
+            data[HTTPMessageField.PROCESSED_IMAGE]
         )
-        image_with_detections = cv2.imdecode(image_with_detections_bytes, cv2.IMREAD_COLOR)
-        cv2.imwrite(
-            str(_DETECT_ENDPOINT_RESULT_PATH / sample.image_filename), image_with_detections
-        )
+        image_with_detections = cv2.cvtColor(image_with_detections, cv2.COLOR_RGB2BGR)
+        save_path = str(_DETECT_ENDPOINT_RESULT_PATH / sample.image_filename)
+        cv2.imwrite(save_path, image_with_detections)
 
 
 def _demo_evaluate_endpoint(samples: list[DocumentImageSample]):
@@ -79,23 +76,28 @@ def _demo_evaluate_endpoint(samples: list[DocumentImageSample]):
         path.mkdir(exist_ok=True, parents=True)
 
     for sample in samples:
-        _, encoded = cv2.imencode(".jpg", sample.image)
-        image_bytes = io.BytesIO(encoded.tobytes())
-        files = {"file": ("image.jpg", image_bytes, "image/jpeg")}
-
+        serialized_image_to_send = serialize_image_for_http_request(sample.image)
         reference_annotations = {"annotations": json.dumps({"this": 1, "that": 2})}
-        response = requests.post(_EVALUATE_URL, files=files, data=reference_annotations)
-        data = response.json()
-        metrics = data["metrics"]
-        image_with_detections_bytes = np.frombuffer(
-            base64.b64decode(data["processed_image"]), dtype=np.uint8
+
+        response = requests.post(
+            _EVALUATE_URL, files=serialized_image_to_send, data=reference_annotations
         )
-        image_with_detections = cv2.imdecode(image_with_detections_bytes, cv2.IMREAD_COLOR)
-        cv2.imwrite(
-            str(_EVALUATE_ENDPOINT_IMAGES_PATH / sample.image_filename), image_with_detections
+        data = response.json()
+
+        metrics = data[HTTPMessageField.METRICS]
+
+        image_with_detections = deserialize_image_from_http_response(
+            data[HTTPMessageField.PROCESSED_IMAGE]
+        )
+        image_with_detections = cv2.cvtColor(image_with_detections, cv2.COLOR_RGB2BGR)
+        image_save_path = str(_EVALUATE_ENDPOINT_IMAGES_PATH / sample.image_filename)
+        cv2.imwrite(image_save_path, image_with_detections)
+
+        metrics_save_path = str(
+            _EVALUATE_ENDPOINT_METRICS_PATH / sample.image_filename.replace(".jpg", ".json")
         )
         with open(
-            str(_EVALUATE_ENDPOINT_METRICS_PATH / sample.image_filename.replace(".jpg", ".json")),
+            metrics_save_path,
             "w",
         ) as f:
             json.dump(metrics, f)
