@@ -1,7 +1,6 @@
 from shapely import unary_union, box
 
-from src.constants import PubLayNetLabel
-from src.types_ import BBox, DocumentImageAnnotation
+from src.types_ import BBox, DetectionOrAnnotation, PubLayNetCategory
 
 
 def _find_bbox_group_iou(bboxes_0: list[BBox], bboxes_1: list[BBox]) -> float | None:
@@ -19,19 +18,19 @@ def _find_bbox_group_iou(bboxes_0: list[BBox], bboxes_1: list[BBox]) -> float | 
 
 
 def get_detection_metrics(
-    detections: list[DocumentImageAnnotation], true_annotations: list[DocumentImageAnnotation]
+    detections: list[DetectionOrAnnotation], annotations: list[DetectionOrAnnotation]
 ) -> dict:
-    label_to_iou: dict[PubLayNetLabel, float] = {}
-    for label in PubLayNetLabel:
-        label_detection_bboxes = [
-            detection.bbox for detection in detections if detection.label == label
+    category_to_iou: dict[PubLayNetCategory, float] = {}
+    for category in PubLayNetCategory:
+        category_detection_bboxes = [
+            detection.bbox for detection in detections if detection.category == category
         ]
-        label_annotation_bboxes = [
-            annotation.bbox for annotation in true_annotations if annotation.label == label
+        category_annotation_bboxes = [
+            annotation.bbox for annotation in annotations if annotation.category == category
         ]
-        label_to_iou[label.to_text()] = _find_bbox_group_iou(
-            label_detection_bboxes, label_annotation_bboxes
+        category_to_iou[category.value] = _find_bbox_group_iou(
+            category_detection_bboxes, category_annotation_bboxes
         )
     return {
-        "label_iou": label_to_iou,
+        "category_iou": category_to_iou,
     }

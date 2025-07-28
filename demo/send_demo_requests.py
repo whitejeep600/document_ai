@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 import requests
 
-from src.types_ import BBox, DocumentImageAnnotation, DocumentImageSample, PubLayNetLabel
+from src.types_ import BBox, DetectionOrAnnotation, DocumentImageSample, PubLayNetCategory
 
 _DETECT_URL = "http://localhost:8000/detect"
 _EVALUATE_URL = "http://localhost:8000/evaluate"
@@ -20,9 +20,9 @@ _EVALUATE_ENDPOINT_IMAGES_PATH = _EVALUATE_ENDPOINT_RESULT_PATH / "images"
 _EVALUATE_ENDPOINT_METRICS_PATH = _EVALUATE_ENDPOINT_RESULT_PATH / "metrics"
 
 
-def _read_publaynet_annotation(raw_annotation: dict) -> DocumentImageAnnotation:
-    return DocumentImageAnnotation(
-        label=PubLayNetLabel(raw_annotation["category_id"]),
+def _read_publaynet_annotation(raw_annotation: dict) -> DetectionOrAnnotation:
+    return DetectionOrAnnotation(
+        category=PubLayNetCategory.from_category_code(raw_annotation["category_id"]),
         bbox=BBox.from_xywh(*[int(x) for x in raw_annotation["bbox"]]),
     )
 

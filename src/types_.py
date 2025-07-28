@@ -1,10 +1,8 @@
-from __future__ import annotations
-
 from dataclasses import dataclass
+from enum import Enum
+from typing import Optional
 
 import numpy as np
-
-from src.constants import PubLayNetLabel
 
 
 @dataclass
@@ -42,14 +40,43 @@ class BBox:
         return self.x_max, self.y_max
 
 
+class PubLayNetCategory(Enum):
+    TEXT = "text"
+    TITLE = "title"
+    LIST = "list"
+    TABLE = "table"
+    FIGURE = "figure"
+
+    @classmethod
+    def from_text(cls, text: str) -> Optional["PubLayNetCategory"]:
+        if text in [category.value for category in PubLayNetCategory]:
+            return PubLayNetCategory(text)
+        else:
+            # Unrecognized categories
+            return None
+
+    @classmethod
+    def from_category_code(cls, code: int) -> "PubLayNetCategory":
+        return {
+            1: cls.TEXT,
+            2: cls.TITLE,
+            3: cls.LIST,
+            4: cls.TABLE,
+            5: cls.FIGURE,
+        }[code]
+
+
 @dataclass
-class DocumentImageAnnotation:
-    label: PubLayNetLabel
+class DetectionOrAnnotation:
+    category: PubLayNetCategory
     bbox: BBox
 
 
 @dataclass
 class DocumentImageSample:
     image: np.ndarray
-    annotations: list[DocumentImageAnnotation]
+    annotations: list[DetectionOrAnnotation]
     image_filename: str
+
+
+
