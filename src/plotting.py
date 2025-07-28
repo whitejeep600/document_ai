@@ -30,9 +30,7 @@ _CATEGORY_COLOR_MAPPING = {
 }
 
 
-def _overlay_detection_on_image(
-    image: np.ndarray, detection: DetectionOrAnnotation
-) -> np.ndarray:
+def _overlay_detection_on_image(image: np.ndarray, detection: DetectionOrAnnotation) -> np.ndarray:
     """
     As a rectangle edge.
     """
@@ -45,7 +43,9 @@ def _overlay_detection_on_image(
     return image
 
 
-def _overlay_annotation_on_image(image: np.ndarray, annotation: DetectionOrAnnotation) -> np.ndarray:
+def _overlay_annotation_on_image(
+    image: np.ndarray, annotation: DetectionOrAnnotation
+) -> np.ndarray:
     """
     As a semi-transparent, filled rectangle.
     """
@@ -53,10 +53,18 @@ def _overlay_annotation_on_image(image: np.ndarray, annotation: DetectionOrAnnot
     image_with_opaque_annotation_bbox = image.copy()
     color = _CATEGORY_COLOR_MAPPING[annotation.category]
     cv2.rectangle(
-        image_with_opaque_annotation_bbox, annotation.bbox.start_point(), annotation.bbox.end_point(), color, -1
+        image_with_opaque_annotation_bbox,
+        annotation.bbox.start_point(),
+        annotation.bbox.end_point(),
+        color,
+        -1,
     )
     image = cv2.addWeighted(
-        image, 1 - _DETECTION_OR_ANNOTATION_PLOTTING_OPACITY, image_with_opaque_annotation_bbox, _DETECTION_OR_ANNOTATION_PLOTTING_OPACITY, 0
+        image,
+        1 - _DETECTION_OR_ANNOTATION_PLOTTING_OPACITY,
+        image_with_opaque_annotation_bbox,
+        _DETECTION_OR_ANNOTATION_PLOTTING_OPACITY,
+        0,
     )
     return image
 
@@ -69,7 +77,9 @@ def overlay_detections_on_image(
     return image
 
 
-def overlay_annotations_on_image(image: np.ndarray, annotations: list[DetectionOrAnnotation]) -> np.ndarray:
+def overlay_annotations_on_image(
+    image: np.ndarray, annotations: list[DetectionOrAnnotation]
+) -> np.ndarray:
     for annotation in annotations:
         image = _overlay_annotation_on_image(image, annotation)
     return image

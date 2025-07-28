@@ -1,4 +1,4 @@
-from shapely import unary_union, box
+from shapely import box, unary_union
 
 from src.types_ import BBox, DetectionOrAnnotation, PubLayNetCategory
 
@@ -20,7 +20,7 @@ def _find_bbox_group_iou(bboxes_0: list[BBox], bboxes_1: list[BBox]) -> float | 
 def get_detection_metrics(
     detections: list[DetectionOrAnnotation], annotations: list[DetectionOrAnnotation]
 ) -> dict:
-    category_to_iou: dict[PubLayNetCategory, float] = {}
+    category_to_iou: dict[str, float | None] = {}
     for category in PubLayNetCategory:
         category_detection_bboxes = [
             detection.bbox for detection in detections if detection.category == category

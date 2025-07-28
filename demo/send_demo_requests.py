@@ -61,15 +61,17 @@ def _demo_detect_endpoint(samples: list[DocumentImageSample]):
     for sample in samples:
         _, encoded = cv2.imencode(".jpg", sample.image)
         image_bytes = io.BytesIO(encoded.tobytes())
-        files = {
-            "file": ("image.jpg", image_bytes, "image/jpeg")
-        }
+        files = {"file": ("image.jpg", image_bytes, "image/jpeg")}
 
         response = requests.post(_DETECT_URL, files=files)
         data = response.json()
-        image_with_detections_bytes = np.frombuffer(base64.b64decode(data["processed_image"]), dtype=np.uint8)
+        image_with_detections_bytes = np.frombuffer(
+            base64.b64decode(data["processed_image"]), dtype=np.uint8
+        )
         image_with_detections = cv2.imdecode(image_with_detections_bytes, cv2.IMREAD_COLOR)
-        cv2.imwrite(str(_DETECT_ENDPOINT_RESULT_PATH / sample.image_filename), image_with_detections)
+        cv2.imwrite(
+            str(_DETECT_ENDPOINT_RESULT_PATH / sample.image_filename), image_with_detections
+        )
 
 
 def _demo_evaluate_endpoint(samples: list[DocumentImageSample]):
@@ -79,18 +81,23 @@ def _demo_evaluate_endpoint(samples: list[DocumentImageSample]):
     for sample in samples:
         _, encoded = cv2.imencode(".jpg", sample.image)
         image_bytes = io.BytesIO(encoded.tobytes())
-        files = {
-            "file": ("image.jpg", image_bytes, "image/jpeg")
-        }
+        files = {"file": ("image.jpg", image_bytes, "image/jpeg")}
 
         reference_annotations = {"annotations": json.dumps({"this": 1, "that": 2})}
         response = requests.post(_EVALUATE_URL, files=files, data=reference_annotations)
         data = response.json()
         metrics = data["metrics"]
-        image_with_detections_bytes = np.frombuffer(base64.b64decode(data["processed_image"]), dtype=np.uint8)
+        image_with_detections_bytes = np.frombuffer(
+            base64.b64decode(data["processed_image"]), dtype=np.uint8
+        )
         image_with_detections = cv2.imdecode(image_with_detections_bytes, cv2.IMREAD_COLOR)
-        cv2.imwrite(str(_EVALUATE_ENDPOINT_IMAGES_PATH / sample.image_filename), image_with_detections)
-        with open(str(_EVALUATE_ENDPOINT_METRICS_PATH / sample.image_filename.replace(".jpg", ".json")), "w") as f:
+        cv2.imwrite(
+            str(_EVALUATE_ENDPOINT_IMAGES_PATH / sample.image_filename), image_with_detections
+        )
+        with open(
+            str(_EVALUATE_ENDPOINT_METRICS_PATH / sample.image_filename.replace(".jpg", ".json")),
+            "w",
+        ) as f:
             json.dump(metrics, f)
 
 

@@ -14,21 +14,11 @@ class BBox:
 
     @classmethod
     def from_xyxy(cls, x_min: int, y_min: int, x_max: int, y_max: int) -> "BBox":
-        return BBox(
-            x_min,
-            y_min,
-            x_max,
-            y_max
-        )
+        return BBox(x_min, y_min, x_max, y_max)
 
     @classmethod
     def from_xywh(cls, x_min: int, y_min: int, width: int, height: int) -> "BBox":
-        return BBox(
-            x_min,
-            y_min,
-            x_min + width,
-            y_min + height
-        )
+        return BBox(x_min, y_min, x_min + width, y_min + height)
 
     def to_xyxy(self) -> tuple[int, int, int, int]:
         return self.x_min, self.y_min, self.x_max, self.y_max
@@ -77,6 +67,3 @@ class DocumentImageSample:
     image: np.ndarray
     annotations: list[DetectionOrAnnotation]
     image_filename: str
-
-
-
