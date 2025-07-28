@@ -21,7 +21,7 @@ class LayoutDetector:
     every call.
     """
 
-    model = PPStructure(layout=True)
+    model = PPStructure(layout=True, show_log=False)
 
     def __call__(self, image: np.ndarray) -> list[DetectionOrAnnotation]:
         raw_detections = self.model(image)

@@ -3,6 +3,7 @@ from pathlib import Path
 
 import cv2
 import requests
+from tqdm import tqdm
 
 from src.constants import HTTPMessageField
 from src.serialization import (
@@ -61,7 +62,7 @@ def _read_image_samples() -> list[DocumentImageSample]:
 def _demo_detect_endpoint(samples: list[DocumentImageSample]):
     _DETECT_ENDPOINT_RESULT_PATH.mkdir(exist_ok=True, parents=True)
 
-    for sample in samples:
+    for sample in tqdm(samples, desc="Demoing the detect endpoint..."):
         serialized_image_to_send = serialize_image_for_http_request(sample.image)
 
         response = requests.post(_DETECT_URL, files=serialized_image_to_send)
@@ -79,7 +80,7 @@ def _demo_evaluate_endpoint(samples: list[DocumentImageSample]):
     for path in _EVALUATE_ENDPOINT_METRICS_PATH, _EVALUATE_ENDPOINT_IMAGES_PATH:
         path.mkdir(exist_ok=True, parents=True)
 
-    for sample in samples:
+    for sample in tqdm(samples, desc="Demoing the evaluate endpoint..."):
         serialized_image_to_send = serialize_image_for_http_request(sample.image)
         reference_annotations = {
             HTTPMessageField.ANNOTATIONS: serialize_annotations(sample.annotations)
