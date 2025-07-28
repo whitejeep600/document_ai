@@ -5,7 +5,11 @@ import cv2
 import requests
 
 from src.constants import HTTPMessageField
-from src.serialization import deserialize_image_from_http_response, serialize_image_for_http_request
+from src.serialization import (
+    deserialize_image_from_http_response,
+    serialize_annotations,
+    serialize_image_for_http_request,
+)
 from src.types_ import BBox, DetectionOrAnnotation, DocumentImageSample, PubLayNetCategory
 
 _DETECT_URL = "http://localhost:8000/detect"
@@ -77,7 +81,9 @@ def _demo_evaluate_endpoint(samples: list[DocumentImageSample]):
 
     for sample in samples:
         serialized_image_to_send = serialize_image_for_http_request(sample.image)
-        reference_annotations = {"annotations": json.dumps({"this": 1, "that": 2})}
+        reference_annotations = {
+            HTTPMessageField.ANNOTATIONS: serialize_annotations(sample.annotations)
+        }
 
         response = requests.post(
             _EVALUATE_URL, files=serialized_image_to_send, data=reference_annotations

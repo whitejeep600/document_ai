@@ -61,6 +61,19 @@ class DetectionOrAnnotation:
     category: PubLayNetCategory
     bbox: BBox
 
+    def as_dict(self):
+        return {
+            "category": self.category.value,
+            "bbox": self.bbox.to_xyxy(),
+        }
+
+    @classmethod
+    def from_dict(cls, d: dict):
+        category = PubLayNetCategory.from_text(d["category"])
+        assert category is not None
+        bbox = BBox.from_xyxy(*d["bbox"])
+        return cls(category, bbox)
+
 
 @dataclass
 class DocumentImageSample:

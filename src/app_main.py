@@ -3,7 +3,7 @@ import numpy as np
 from fastapi import FastAPI, File, Form, UploadFile
 
 from src.constants import HTTPMessageField
-from src.serialization import serialize_image_for_http_response
+from src.serialization import deserialize_annotations, serialize_image_for_http_response
 
 document_ai = FastAPI()
 
@@ -22,10 +22,12 @@ async def _detect(file: UploadFile = File(...)):
 
 
 @document_ai.post("/evaluate")
-async def _evaluate(file: UploadFile = File(...), annotations: str = Form(...)):
+async def _evaluate(file: UploadFile = File(...), serialized_annotations: str = Form(...)):
     file_contents = await file.read()
     image = cv2.imdecode(np.frombuffer(file_contents, np.uint8), cv2.IMREAD_COLOR)
 
+    annotations = deserialize_annotations(serialized_annotations)
+    print(annotations)
     # todo actual processing
     cv2.rectangle(image, (30, 30), (100, 100), (0, 255, 255), 20)
 
