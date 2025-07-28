@@ -23,7 +23,7 @@ _EVALUATE_ENDPOINT_METRICS_PATH = _EVALUATE_ENDPOINT_RESULT_PATH / "metrics"
 def _read_publaynet_annotation(raw_annotation: dict) -> DocumentImageAnnotation:
     return DocumentImageAnnotation(
         label=PubLayNetLabel(raw_annotation["category_id"]),
-        bbox=BBox(*[int(x) for x in raw_annotation["bbox"]]),
+        bbox=BBox.from_xywh(*[int(x) for x in raw_annotation["bbox"]]),
     )
 
 
@@ -35,6 +35,7 @@ def _read_image_samples() -> list[DocumentImageSample]:
 
     for image_path in _IMAGES_ROOT.iterdir():
         image = cv2.imread(str(image_path))
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         image_data = [
             image_data
             for image_data in sample_data["images"]
